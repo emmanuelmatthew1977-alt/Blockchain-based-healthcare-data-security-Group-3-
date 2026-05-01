@@ -159,13 +159,27 @@ with tab_work:
             with st.expander("➕ Manual Clinical Entry"):
                 m_pid = st.text_input("Patient ID (Manual)")
                 m_diag = st.text_input("Diagnosis")
+                
+                # Added Age and Gender fields
+                col_a, col_g = st.columns(2)
+                with col_a:
+                    m_age = st.number_input("Age", 0, 120, 25)
+                with col_g:
+                    m_gender = st.selectbox("Gender", ["Male", "Female", "Other"])
+                
                 m_h = st.number_input("Height", 50, 250, 170)
                 m_w = st.number_input("Weight", 1, 300, 70)
                 m_t = st.number_input("Temp", 30.0, 45.0, 36.5)
                 m_bp = st.text_input("Blood Pressure", "120/80")
                 m_p = st.number_input("Pulse", 40, 200, 72)
+                
                 if st.button("Mine Encrypted Block"):
-                    data = {"Diagnosis": m_diag, "Vitals": {"H": m_h, "W": m_w, "T": m_t, "BP": m_bp, "P": m_p}}
+                    # Structured dictionary including new demographic fields
+                    data = {
+                        "Diagnosis": m_diag, 
+                        "Demographics": {"Age": m_age, "Gender": m_gender},
+                        "Vitals": {"H": m_h, "W": m_w, "T": m_t, "BP": m_bp, "P": m_p}
+                    }
                     enc_m = st.session_state.cipher.encrypt(json.dumps(data).encode()).decode()
                     st.session_state.consent_registry[m_pid] = True
                     st.session_state.my_blockchain.add_new_block(Block(len(st.session_state.my_blockchain.chain), m_pid, "MANUAL_ENTRY", enc_m, {"id": user_id}, st.session_state.my_blockchain.chain[-1].hash))
